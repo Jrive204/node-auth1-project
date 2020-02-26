@@ -17,12 +17,12 @@ const knex = Knex({
 const sessionConfig = {
   name: 'Authproject',
   secret: 'SUPER SECRET NAME',
-  resave: false,
+  resave: true,
   saveUninitialized: true, //related to GDPR compliance
   cookie: {
     maxAge: 1000 * 60 * 15,
     secure: false, // Should be true in Production
-    httpOnly: true // true means JS can't touch the cookie
+    httpOnly: false // true means JS can't touch the cookie
   },
   //    REMEBER the new Keyword
 
@@ -38,16 +38,37 @@ const sessionConfig = {
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
+const config = {
+  origin: 'http://localhost:3000',
+  methods: 'GET,HEAD,POST,PATCH,DELETE,OPTIONS,PUT',
+  credentials: true,
+  allowedHeaders: 'Content-Type, Authorization, X-Requested-With'
+};
 
 // Routes
 const apiRouter = require('../api/api-router');
 
 server.use(morgan('dev'));
 server.use(helmet());
-server.use(cors());
+server.use(cors(config));
 server.use(express.json());
 server.use(session(sessionConfig));
 
 server.use('/api', apiRouter);
+
+server.get('/', (req, res) => {
+  res.json({ message: 'WELCOME to Auth project' });
+});
+server.get('/cookie', cors(config), (req, res) => {
+  const options = {
+    secure: false,
+    httpOnly: true,
+    domain: 'http://localhost:5000/'
+  };
+  return res
+    .cookie('cookieName', 'cookieValue', options)
+    .status(200)
+    .send('cookie sent');
+});
 
 module.exports = server;

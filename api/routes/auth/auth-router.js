@@ -12,7 +12,7 @@ router.post('/register', (req, res) => {
   Users.add(user)
     .then(user =>
       user
-        ? res.status(200).json(user)
+        ? (req.session.loggedin = true) & res.status(200).json(user)
         : res.status(400).json({ message: 'need name and password' })
     )
     .catch(err => res.status(600).json(err.message));
@@ -36,15 +36,17 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/logout', (req, res) => {
+  console.log(req.session.cookie);
   req.session
-    ? req.session.destroy(err => {
+    ? res.clearCookie('Authproject', { path: '/' }) &&
+      req.session.destroy(err => {
         err
           ? res
               .status(500)
               .json({ you: 'can checkout anytime but never leave' })
           : res.status(200).json({ message: 'goodbye' });
       })
-    : res.status(200).json({ message: 'goodbye' });
+    : res.status(200).json({ message: 'goodbye!!!' });
 });
 
 module.exports = router;

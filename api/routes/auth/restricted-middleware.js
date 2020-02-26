@@ -2,7 +2,10 @@
 // const Users = require('../users/user-model');
 
 module.exports = (req, res, next) => {
-  req.session && req.session.loggedin
+  console.log(req.session);
+  // req.session.loggedin    test out later
+
+  req.session && req.session.cookie
     ? next()
     : res.status(500).json({ message: 'No Auth' });
 
